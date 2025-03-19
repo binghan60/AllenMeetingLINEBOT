@@ -83,6 +83,9 @@ console.log('✅ 提醒排程已啟動...');
 // 啟動 Express 伺服器
 const app = express();
 app.use(express.json());
+app.get("/", () => {
+    res.status(200).send("Allen機器人API")
+})
 app.post('/webhook', bot.parser());
 
 app.listen(PORT, () => {
