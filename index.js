@@ -4,6 +4,15 @@ import mongoose from 'mongoose';
 import linebot from 'linebot';
 import cron from 'node-cron';
 import axios from 'axios';
+import User from './models/userModel';
+mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => {
+        console.log('資料庫連線成功');
+    })
+    .catch((err) => {
+        console.log('資料庫連線失敗');
+    });
 
 dotenv.config();
 const bot = linebot({
@@ -22,6 +31,17 @@ bot.on('message', async (event) => {
         await event.reply('小秘書看不懂啦');
         return;
     }
+    const profile = await event.source.profile();
+
+    const userLineId = profile.userId
+    const userName = profile.displayName
+    const avatar = profile.pictureUrl
+
+    let user = await User.findOne({ userLineId })
+
+
+
+
     const message = event.message.text;
     const formattedDate = convertDate(message);
     const meetingName = extractDetails(message);
