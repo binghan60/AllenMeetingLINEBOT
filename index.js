@@ -65,6 +65,7 @@ bot.on('message', async (event) => {
         meetingAt: moment(formattedDate, 'YYYY-MM-DD-HH:mm').toDate(),
     });
     await newMeeting.save();
+    console.log(newMeeting)
 });
 
 function convertDate(input) {
