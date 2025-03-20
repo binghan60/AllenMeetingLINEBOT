@@ -16,6 +16,7 @@ mongoose
         console.log('資料庫連線成功');
     })
     .catch((err) => {
+        console.log(err)
         console.log('資料庫連線失敗');
     });
 
