@@ -32,9 +32,11 @@ app.get('/', (req, res) => {
 });
 app.post('/webhook', linebotParser);
 bot.on('message', async (event) => {
-    console.log(event)
     if (event.message.type !== 'text') {
+        console.log(event.message.type)
         await event.reply('小秘書看不懂啦');
+        console.log("RP")
+
         return;
     }
     const profile = await event.source.profile();
