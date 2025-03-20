@@ -52,6 +52,7 @@ bot.on('message', async (event) => {
         await newUser.save();
         user = newUser;
     }
+    console.log(user)
 
     const message = event.message.text;
     //input : 3/20 9:00 A廠商開會
@@ -65,7 +66,6 @@ bot.on('message', async (event) => {
         meetingAt: moment(formattedDate, 'YYYY-MM-DD-HH:mm').toDate(),
     });
     await newMeeting.save();
-    console.log(newMeeting)
 });
 
 function convertDate(input) {
