@@ -213,26 +213,29 @@ app.post('/api/check-reminders', async (req, res) => {
     }
 
     const now = new Date();
-    // 查找需要提醒的待辦事項 (當前時間前的5分鐘內，未通知且未完成的)
-    // 使用時間範圍而不是精確時間，避免因定時任務執行間隔而錯過通知
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+    // 計算未來1小時的時間
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
     
+    // 查找未來1小時內將發生且尚未通知的待辦事項
     const todosToNotify = await Todo.find({
-      reminderTime: { $gte: fiveMinutesAgo, $lte: now },
+      reminderTime: { $gt: now, $lte: oneHourLater },
       isNotified: false,
       isCompleted: false
     });
 
-    console.log(`Found ${todosToNotify.length} todos to notify`);
+    console.log(`Found ${todosToNotify.length} upcoming todos within the next hour to notify`);
     
     // 發送通知
     let notifiedCount = 0;
     for (const todo of todosToNotify) {
       try {
-        // 發送提醒訊息
+        // 計算還有多少分鐘
+        const minutesLeft = Math.round((todo.reminderTime - now) / (60 * 1000));
+        
+        // 發送提醒訊息（包含剩餘時間）
         await client.pushMessage(todo.userId, {
           type: 'text',
-          text: `⏰ 提醒：${todo.content}`
+          text: `⏰ 提醒：${todo.content}\n距離開始還有約 ${minutesLeft} 分鐘`
         });
 
         // 更新為已通知
@@ -240,7 +243,7 @@ app.post('/api/check-reminders', async (req, res) => {
         await todo.save();
         
         notifiedCount++;
-        console.log(`Notification sent for todo: ${todo._id}`);
+        console.log(`Notification sent for todo: ${todo._id}, minutes left: ${minutesLeft}`);
       } catch (err) {
         console.error(`Error sending notification for todo ${todo._id}:`, err);
       }
