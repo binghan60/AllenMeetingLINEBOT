@@ -48,16 +48,16 @@ async function handleEvent(event) {
   const { userId } = event.source;
   const messageText = event.message.text.trim();
   const profile = await client.getProfile(userId);
-  let user = await User.findOne({ userId })
-  if (user === null) {
-    const newUser = new User({
-      userId:userId,
-      userName: profile.displayName,
-      avatar: profile.pictureUrl
-    })
-    await newUser.save()
-    user = newUser
-  }
+  // let user = await User.findOne({ userId })
+  // if (user === null) {
+  //   const newUser = new User({
+  //     userId:userId,
+  //     userName: profile.displayName,
+  //     avatar: profile.pictureUrl
+  //   })
+  //   await newUser.save()
+  //   user = newUser
+  // }
   // 處理待辦事項輸入
   if (messageText.match(/^\d+\/\d+\s+\d+:\d+\s+.+/)) {
     return handleTodoInput(userId, messageText, event.replyToken);
