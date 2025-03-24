@@ -231,7 +231,7 @@ app.post('/api/check-reminders', async (req, res) => {
       try {
         // 計算還有多少分鐘
         const minutesLeft = Math.round((todo.reminderTime - now) / (60 * 1000));
-        
+        console.log(minutesLeft)
         // 發送提醒訊息（包含剩餘時間）
         await client.pushMessage(todo.userId, {
           type: 'text',
