@@ -1,0 +1,23 @@
+{
+    "name": "line-todolist-reminder-bot",
+    "version": "1.0.0",
+    "description": "LINE Bot for TodoList and reminders",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js",
+      "dev": "nodemon index.js"
+    },
+    "dependencies": {
+      "@line/bot-sdk": "^7.5.2",
+      "express": "^4.18.2",
+      "mongoose": "^7.3.1",
+      "moment-timezone": "^0.5.43",
+      "node-cron": "^3.0.2"
+    },
+    "devDependencies": {
+      "nodemon": "^2.0.22"
+    },
+    "engines": {
+      "node": ">=14.0.0"
+    }
+  }
