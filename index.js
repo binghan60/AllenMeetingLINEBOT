@@ -4,6 +4,7 @@ const line = require('@line/bot-sdk');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 const Todo = require('./models/Todo');
+const User = require('./models/User');
 
 const app = express();
 
@@ -46,7 +47,21 @@ async function handleEvent(event) {
 
   const { userId } = event.source;
   const messageText = event.message.text.trim();
+  const profile = await client.getProfile(userId);
 
+
+
+  let user = await User.findOne({ userId })
+
+  if (user === null) {
+    const newUser = new User({
+      userLineId,
+      userName: profile.displayName,
+      avatar: profile.pictureUrl
+    })
+    await newUser.save()
+    user = newUser
+  }
   // 處理待辦事項輸入
   if (messageText.match(/^\d+\/\d+\s+\d+:\d+\s+.+/)) {
     return handleTodoInput(userId, messageText, event.replyToken);

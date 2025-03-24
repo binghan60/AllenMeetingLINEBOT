@@ -1,7 +1,7 @@
 // models/Todo.js
 const mongoose = require('mongoose');
 
-const todoSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   userId: {
     type: String,
     required: true,
@@ -17,7 +17,4 @@ const todoSchema = new mongoose.Schema({
   }
 });
 
-// 為提醒功能創建複合索引
-todoSchema.index({ reminderTime: 1, isNotified: 1, isCompleted: 1 });
-
-module.exports = mongoose.model('Todo', todoSchema);
+module.exports = mongoose.model('User', userSchema);
