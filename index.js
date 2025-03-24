@@ -3,7 +3,8 @@ const express = require('express');
 const line = require('@line/bot-sdk');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
-const Todo = require('./models/Todo');
+const Todo = require('./models/Todo.js');
+const User = require('./models/User.js');
 
 const app = express();
 
@@ -46,7 +47,17 @@ async function handleEvent(event) {
 
   const { userId } = event.source;
   const messageText = event.message.text.trim();
-
+  const profile = await client.getProfile(userId);
+  let user = await User.findOne({ userId })
+  if (user === null) {
+    const newUser = new User({
+      userId:userId,
+      userName: profile.displayName,
+      avatar: profile.pictureUrl
+    })
+    await newUser.save()
+    user = newUser
+  }
   // 處理待辦事項輸入
   if (messageText.match(/^\d+\/\d+\s+\d+:\d+\s+.+/)) {
     return handleTodoInput(userId, messageText, event.replyToken);
@@ -231,7 +242,6 @@ app.post('/api/check-reminders', async (req, res) => {
       try {
         // 計算還有多少分鐘
         const minutesLeft = Math.round((todo.reminderTime - now) / (60 * 1000));
-        console.log(minutesLeft)
         // 發送提醒訊息（包含剩餘時間）
         await client.pushMessage(todo.userId, {
           type: 'text',
