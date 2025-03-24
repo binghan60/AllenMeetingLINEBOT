@@ -55,7 +55,7 @@ async function handleEvent(event) {
 
   if (user === null) {
     const newUser = new User({
-      userLineId,
+      userId,
       userName: profile.displayName,
       avatar: profile.pictureUrl
     })
