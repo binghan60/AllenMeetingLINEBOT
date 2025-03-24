@@ -3,8 +3,8 @@ const express = require('express');
 const line = require('@line/bot-sdk');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
-const Todo = require('./models/Todo.js');
-const User = require('./models/User.js');
+const Todo = require('./models/Todo');
+const User = require('./models/User');
 
 const app = express();
 
