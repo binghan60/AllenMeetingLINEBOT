@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const moment = require('moment-timezone');
 const Todo = require('./models/Todo');
 const User = require('./models/User');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -405,6 +407,22 @@ app.post('/api/check-reminders', async (req, res) => {
 // 健康檢查端點
 app.get('/', (req, res) => {
   res.send('LINE Bot server is running!');
+});
+
+
+app.post('/initialize-richmenu', async (req, res) => {
+  try {
+    const richMenuId = await initializeRichMenu(client);
+    res.status(200).json({
+      success: true,
+      message: `RichMenu initialized successfully with ID: ${richMenuId}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to initialize RichMenu',
+      details: error.message
+    });
+  }
 });
 
 
