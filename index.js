@@ -21,8 +21,8 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // 解析請求體
 app.use('/webhook', line.middleware(config));
@@ -38,6 +38,131 @@ app.post('/webhook', (req, res) => {
       res.status(500).end();
     });
 });
+
+
+async function createRichMenu(client) {
+  try {
+    // RichMenu 設定
+    const richMenu = {
+      size: {
+        width: 2500,
+        height: 843
+      },
+      selected: false,
+      name: "Todo List Menu",
+      chatBarText: "功能選單",
+      areas: [
+        {
+          bounds: {
+            x: 0,
+            y: 0,
+            width: 833,
+            height: 843
+          },
+          action: {
+            type: "message",
+            text: "列表"
+          }
+        },
+        {
+          bounds: {
+            x: 833,
+            y: 0,
+            width: 833,
+            height: 843
+          },
+          action: {
+            type: "message",
+            text: "說明"
+          }
+        },
+        {
+          bounds: {
+            x: 1666,
+            y: 0,
+            width: 834,
+            height: 843
+          },
+          action: {
+            type: "uri",
+            uri: "https://line.me/R/nv/profile"
+          }
+        }
+      ]
+    };
+
+    // 創建RichMenu
+    const richMenuId = await client.createRichMenu(richMenu);
+    console.log('Rich Menu created with ID:', richMenuId);
+
+    // 上傳RichMenu背景圖片
+    // 注意：這裡需要準備一個符合RichMenu尺寸的PNG圖片
+    const imagePath = path.join(__dirname, 'richmenu-image.png');
+    const buffer = fs.readFileSync(imagePath);
+    
+    await client.setRichMenuImage(richMenuId, buffer);
+    
+    // 將RichMenu設為預設
+    await client.setDefaultRichMenu(richMenuId);
+
+    return richMenuId;
+  } catch (error) {
+    console.error('Error creating rich menu:', error);
+    throw error;
+  }
+}
+
+// 刪除所有現有RichMenu的函數（用於重新設置）
+async function deleteAllRichMenus(client) {
+  try {
+    // 獲取當前所有RichMenu
+    const richMenuList = await client.getRichMenuList();
+    
+    // 逐一刪除
+    for (const menu of richMenuList) {
+      await client.deleteRichMenu(menu.richMenuId);
+      console.log(`Deleted RichMenu: ${menu.richMenuId}`);
+    }
+  } catch (error) {
+    console.error('Error deleting rich menus:', error);
+    throw error;
+  }
+}
+
+async function initializeRichMenu(client) {
+  try {
+    // 先刪除所有現有RichMenu
+    await deleteAllRichMenus(client);
+    
+    // 創建新的RichMenu
+    const richMenuId = await createRichMenu(client);
+    
+    console.log('RichMenu initialization complete');
+    return richMenuId;
+  } catch (error) {
+    console.error('RichMenu initialization failed:', error);
+    throw error;
+  }
+}
+async function handleHelpCommand(userId, replyToken) {
+  return client.replyMessage(replyToken, {
+    type: 'text',
+    text: `待辦事項機器人使用說明：
+
+1. 新增待辦事項：
+   格式：月/日 時:分 內容
+   範例：3/20 9:00 A廠商開會
+
+2. 查看待辦清單：
+   輸入「列表」或點選選單中的列表按鈕
+
+3. 其他命令：
+   - 完成 [ID]：標記待辦事項為已完成
+   - 刪除 [ID]：刪除待辦事項
+
+提醒：本機器人會在事件發生前1小時發送通知`
+  });
+}
 
 // 處理LINE事件
 async function handleEvent(event) {
@@ -66,7 +191,7 @@ async function handleEvent(event) {
   if (messageText.match(/^\d+\/\d+\s+\d+:\d+\s+.+/)) {
     return handleTodoInput(userId, messageText, event.replyToken);
   }
-  
+
   // 處理其他命令
   if (messageText === '列表' || messageText === 'list') {
     return handleListCommand(userId, event.replyToken);
@@ -102,11 +227,11 @@ async function handleTodoInput(userId, text, replyToken) {
     }
 
     const [, month, day, hour, minute, content] = match;
-    
+
     // 創建日期時間 (預設為當前年份)
     const currentYear = new Date().getFullYear();
     const reminderTime = moment.tz(`${currentYear}-${month}-${day} ${hour}:${minute}`, 'YYYY-MM-DD HH:mm', 'Asia/Taipei');
-    
+
     // 儲存到資料庫
     const todo = new Todo({
       userId,
@@ -134,7 +259,7 @@ async function handleTodoInput(userId, text, replyToken) {
 // 處理列表命令
 async function handleListCommand(userId, replyToken) {
   try {
-    const todos = await Todo.find({ 
+    const todos = await Todo.find({
       userId,
       isCompleted: false
     }).sort({ reminderTime: 1 });
@@ -230,7 +355,7 @@ app.post('/api/check-reminders', async (req, res) => {
     const now = new Date();
     // 計算未來1小時的時間
     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-    
+
     // 查找未來1小時內將發生且尚未通知的待辦事項
     const todosToNotify = await Todo.find({
       reminderTime: { $gt: now, $lte: oneHourLater },
@@ -239,7 +364,7 @@ app.post('/api/check-reminders', async (req, res) => {
     });
 
     console.log(`Found ${todosToNotify.length} upcoming todos within the next hour to notify`);
-    
+
     // 發送通知
     let notifiedCount = 0;
     for (const todo of todosToNotify) {
@@ -255,7 +380,7 @@ app.post('/api/check-reminders', async (req, res) => {
         // 更新為已通知
         todo.isNotified = true;
         await todo.save();
-        
+
         notifiedCount++;
         console.log(`Notification sent for todo: ${todo._id}, minutes left: ${minutesLeft}`);
       } catch (err) {
@@ -263,9 +388,9 @@ app.post('/api/check-reminders', async (req, res) => {
       }
     }
 
-    return res.status(200).json({ 
-      success: true, 
-      message: `Successfully processed ${todosToNotify.length} todos, sent ${notifiedCount} notifications` 
+    return res.status(200).json({
+      success: true,
+      message: `Successfully processed ${todosToNotify.length} todos, sent ${notifiedCount} notifications`
     });
   } catch (error) {
     console.error('Error in check-reminders API:', error);
@@ -278,10 +403,17 @@ app.get('/', (req, res) => {
   res.send('LINE Bot server is running!');
 });
 
+
+
+
 // 啟動服務器
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, async () => {
+  try {
+    await initializeRichMenu(client);
+    console.log(`Server is running on port ${PORT}`);
+  } catch (error) {
+    console.error('Failed to initialize RichMenu:', error);
+  }
 });
 
 module.exports = app; // For Vercel
