@@ -407,6 +407,7 @@ app.get('/', (req, res) => {
 
 
 // 啟動服務器
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   try {
     await initializeRichMenu(client);
