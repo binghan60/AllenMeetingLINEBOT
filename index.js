@@ -41,7 +41,6 @@ app.post('/webhook', (req, res) => {
 
 
 async function createRichMenu(client) {
-  console.log("createRichMenu")
   try {
     // RichMenu 設定
     const richMenu = {
@@ -417,5 +416,6 @@ app.listen(PORT, async () => {
     console.error('Failed to initialize RichMenu:', error);
   }
 });
+await initializeRichMenu(client);
 
 module.exports = app; // For Vercel
