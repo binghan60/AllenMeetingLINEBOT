@@ -197,6 +197,10 @@ async function handleEvent(event) {
     return handleListCommand(userId, event.replyToken);
   }
 
+  if (messageText === '說明') {
+    return handleHelpCommand(userId, event.replyToken);
+  }
+
   if (messageText.startsWith('完成 ') || messageText.startsWith('done ')) {
     const todoId = messageText.split(' ')[1];
     return handleCompleteCommand(userId, todoId, event.replyToken);
