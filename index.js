@@ -416,6 +416,5 @@ app.listen(PORT, async () => {
     console.error('Failed to initialize RichMenu:', error);
   }
 });
-await initializeRichMenu(client);
 
 module.exports = app; // For Vercel
