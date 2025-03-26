@@ -50,7 +50,7 @@ async function createRichMenu(client) {
         width: 2500,
         height: 843
       },
-      selected: false,
+      selected: true,
       name: "Todo List Menu",
       chatBarText: "功能選單",
       areas: [
@@ -418,6 +418,7 @@ app.post('/initialize-richmenu', async (req, res) => {
       message: `RichMenu initialized successfully with ID: ${richMenuId}`
     });
   } catch (error) {
+    
     res.status(500).json({
       error: 'Failed to initialize RichMenu',
       details: error.message
@@ -432,7 +433,6 @@ app.post('/initialize-richmenu', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   try {
-    await initializeRichMenu(client);
     console.log(`Server is running on port ${PORT}`);
   } catch (error) {
     console.error('Failed to initialize RichMenu:', error);
