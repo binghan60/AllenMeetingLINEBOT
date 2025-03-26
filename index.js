@@ -99,12 +99,11 @@ async function createRichMenu(client) {
     // 創建RichMenu
     const richMenuId = await client.createRichMenu(richMenu);
     console.log('Rich Menu created with ID:', richMenuId);
-
     // 上傳RichMenu背景圖片
     // 注意：這裡需要準備一個符合RichMenu尺寸的PNG圖片
     const imagePath = path.join(__dirname, 'richmenu.jpg');
     const buffer = fs.readFileSync(imagePath);
-    
+    console.log(imagePath)
     await client.setRichMenuImage(richMenuId, buffer);
     
     // 將RichMenu設為預設
