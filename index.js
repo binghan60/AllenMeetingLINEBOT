@@ -99,7 +99,7 @@ async function createRichMenu(client) {
 
     // 上傳RichMenu背景圖片
     // 注意：這裡需要準備一個符合RichMenu尺寸的PNG圖片
-    const imagePath = path.join(__dirname, 'richmenu-image.png');
+    const imagePath = path.join(__dirname, 'richmenu.jpg');
     const buffer = fs.readFileSync(imagePath);
     
     await client.setRichMenuImage(richMenuId, buffer);
