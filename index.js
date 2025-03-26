@@ -93,6 +93,9 @@ async function createRichMenu(client) {
       ]
     };
 
+    console.log("📌 Creating Rich Menu...");
+    console.log(JSON.stringify(richMenu, null, 2));
+
     // 創建RichMenu
     const richMenuId = await client.createRichMenu(richMenu);
     console.log('Rich Menu created with ID:', richMenuId);
