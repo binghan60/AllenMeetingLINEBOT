@@ -58,7 +58,7 @@ async function createRichMenu(client) {
           bounds: {
             x: 0,
             y: 0,
-            width: 833,
+            width: 1250,
             height: 843
           },
           action: {
@@ -68,26 +68,14 @@ async function createRichMenu(client) {
         },
         {
           bounds: {
-            x: 833,
+            x: 1250,
             y: 0,
-            width: 833,
+            width: 1250,
             height: 843
           },
           action: {
             type: "message",
             text: "說明"
-          }
-        },
-        {
-          bounds: {
-            x: 1666,
-            y: 0,
-            width: 834,
-            height: 843
-          },
-          action: {
-            type: "uri",
-            uri: "https://line.me/R/nv/profile"
           }
         }
       ]
